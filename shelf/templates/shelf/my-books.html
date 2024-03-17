@@ -1,0 +1,200 @@
+{% include 'library/base.html' %}
+
+{% load static %}
+
+{% block content%}
+
+    <style>
+        .my-books{
+            display: flex;
+            flex-direction: row;
+        }
+
+        .shelf-nav{
+            width: 200px;
+            height: 100%;
+        }
+
+        .shelf-content{
+            width: calc(100% - 200px);
+            height: 100%;
+            border-style: solid;
+            border-color: grey;
+            border-width: 0 0 0 1px;
+            box-sizing: border-box;
+            padding: 0 0 0 20px;
+        }
+
+        .shelf-content table{
+            width: 100%;
+        }
+
+        .shelf-content table .cover{
+            width: 150px;
+            box-sizing: border-box;
+            padding: 20px 20px 20px 0
+        }
+
+        .shelf-content table .cover img{
+            width: 100%;
+        }
+
+        a{
+            color:black;
+            text-decoration: none;
+        }
+
+
+        .book-row{
+            box-sizing: border-box;
+            padding-bottom: 20px;
+        }
+
+        .book-title:hover{
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        tr{
+            box-sizing: border-box;
+            padding: 20px 0;
+            border-style: solid;
+            border-color: grey;
+            border-width: 0 0 1px 0;
+        }
+
+        th{
+            box-sizing: border-box;
+            padding: 0 0 15px 0;
+        }
+
+    </style>
+
+    <div class = "container">
+        <h1>
+            My books
+        </h1>
+
+       
+        <hr>
+
+        <div class = "my-books">
+            <div class = "shelf-nav">
+                <p>
+                    <b>
+                        Bookshelves
+                    </b>
+                </p>
+                <ul>
+                    <a href = "{% url  "my-books" "all"%}">
+                        <li class = "shelf_link">
+                            <span class = "shelf_name">
+                                All
+                            </span>
+                            &nbsp;
+                            <span>
+                                ({{num_of_books}})
+                            </span>
+                        </li>
+                    </a>
+                   
+                    {%for shelf in all_shelves%}
+                        <a href = "{% url "my-books" shelf.slug %}">
+                            <li class = "shelf_link">
+                                <span class = "shelf_name">
+                                    {{shelf.shelf_option|capfirst}}
+                                </span>
+                                &nbsp;
+                                <span>
+                                    ({{shelf.number_of_items}})
+                                </span>
+                            </li>
+                        </a>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class = "shelf-content">
+                <table>
+                    <tr>
+                        <th class = "cover" style = "padding: 0 0 15px 0">
+                            Cover
+                        </th>
+                        <th>
+                            Title
+                        </th>
+                        <th>
+                            Author
+                        </th>
+                        <th>
+                            Avg Rating
+                        </th>
+                        <th>
+                            My Rating
+                        </th>
+                        <th>
+                            Shelf
+                        </th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    {% for book in my_books %}
+                        {% if book.shelf_name != None %}
+                        {% if book.shelf_name == current_shelf or current_shelf == "all" %}
+                            <tr class = "book-row">
+                                <td class = "cover">
+                                    <a href =  "{% url "book-info" book.slug %}">
+                                        <img src = "{{book.image.url}}" style = "width: 100%">
+                                    </a>
+                                </td>
+                               
+                                <td class = "book-title">
+                                    <a href =  "{% url "book-info" book.slug %}">
+                                        {{book.title}}
+                                    </a>
+
+                                </td>
+                                <td>
+                                    {{book.author}}
+                                </td>
+                                <td>
+                                    {{book.avg_rating|floatformat:2 }}
+                                </td>
+                                <td>
+                                    {{book.rating_by_this_user}}
+                                </td>
+                                <td>
+                                    {{book.shelf_name|capfirst}}
+                                </td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </table>
+
+
+            </div>
+        </div>
+
+        <br>
+        <br>
+        <br>
+    </div>
+   
+    <script>
+        let data = JSON.parse("{{data|escapejs}}")
+        let current_shelf = data["current_shelf"]
+
+        let shelf_links = document.querySelectorAll(".shelf_link")
+
+        for(let i = 0; i<shelf_links.length; i++){
+            let shelf_name = shelf_links[i].querySelector(".shelf_name").textContent.trim().toLowerCase()
+            if (shelf_name == current_shelf){
+                shelf_links[i].style.fontWeight = "bold";
+            }
+        }
+
+
+    </script>
+{% endblock %}

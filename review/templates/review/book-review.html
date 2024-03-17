@@ -1,0 +1,240 @@
+{% extends 'library/base.html' %}
+
+{% load static %}
+
+{%block content %}
+    <style>
+        a{
+            text-decoration: none;
+        }
+
+        .title{
+            font-size: 24px;
+        }
+
+        .title a{
+            color: #325d88;
+        }
+
+        .book-info{
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+        }
+
+        .book-info .img-col{
+            width: 250px;
+        }
+
+        .book-info .img-col img{
+            width: 100%;
+        }
+
+        .book-info .info-col{
+            width: calc(100% - 250px);
+            box-sizing: border-box;
+            margin-left: 40px;
+        }
+
+        .book-info .info-col p{
+            font-size: 16px;
+        }
+
+        .star-row{
+            font-size: 25px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+            width: 150px;
+            display: flex;
+        }
+
+        .star-row span{
+            color: grey;
+            margin-left: 10px;
+        }
+
+        .star-row i{
+            margin-right: 5px;
+        }
+
+        #comment{
+            width: 600px;
+            height: 300px;
+            font-size: 16px;
+            text-align:justify;
+            vertical-align: text-top;
+            box-sizing: border-box;
+            padding: 20px;
+        }
+    </style>
+
+    <div class = "container">
+        <p class = "title">
+            <a href = "{{ book.get_absolute_url }}">
+                <span>
+                    <b>
+                        {{book.title}}
+                    </b>
+                    
+                </span>
+            </a>
+
+            >  Review
+        </p>
+
+        <br>
+
+        <div class = "book-info">
+            <div class = "img-col">
+                <img src = "{{book.image.url}}">
+            </div>
+            <div class = "info-col">
+                <p style = "font-size: 20px;">
+                    <i>
+                        <b>
+                            {{book.title}}
+                        </b>
+                    </i>
+                </p>
+                <p>Author: {{book.author}} </p>
+                <p>Year: {{book.year}} </p>
+
+                <br>
+
+                <div>
+                    <p style = "font-size: 20px;">
+                        <b>
+                            My Rating:
+                        </b>
+                    </p>
+                    <div class = "star-row" id = "user-rated" style = "cursor: pointer;">
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+
+                        <span id = "clear" style = "font-size: 14px">
+                            Clear
+                        </span>
+                    </div>
+                </div>
+
+                <br>
+
+                <div>
+                    <p style = "font-size: 20px;">
+                        <b>
+                            Your thoughts on this book:
+                        </b>
+                    </p>
+
+                    <textarea id = "comment" wrap = "physical">
+                       
+                    </textarea>
+                </div>
+
+                <br>
+
+                <button type="button" class="btn btn-primary btn-lg" id = "save-review">Save Review</button>
+
+                
+            </div>
+
+            
+
+           
+        </div>
+
+        <br>
+            <br>
+            <br>
+            <br>
+       
+    </div>
+
+    <script>
+        let data = JSON.parse("{{data|escapejs}}")
+
+        let user_rating = data["rating"]
+        let book_id = data["book_id"]
+        let user_comment = data["comment"]
+
+        if (user_comment != "None")
+            document.getElementById("comment").value = user_comment
+
+        let rated_stars = document.getElementById("user-rated").querySelectorAll("i")
+
+        if (user_rating != "unrated"){
+            for (let i = 0; i<user_rating; i++){
+                rated_stars[i].classList.remove("fa-star-o")
+                rated_stars[i].classList.add("fa-star")
+            }
+        }
+
+        rated_stars.forEach((star, index) => {
+            star.onmouseover = () => {
+                for (let i = 0; i<= index + 1; i++){
+                    rated_stars[i].classList.remove("fa-star-o")
+                    rated_stars[i].classList.add("fa-star")
+                }
+
+                for (let i = index + 1; i < 5; i++){
+                    rated_stars[i].classList.remove("fa-star")
+                    rated_stars[i].classList.add("fa-star-o")
+                }
+            }
+        })
+
+        let clear = document.getElementById("clear")
+        clear.onclick = () => {
+            for (let i = 0; i<5; i++){
+                rated_stars[i].classList.remove("fa-star")
+                rated_stars[i].classList.add("fa-star-o")
+            }
+        }
+
+        
+
+        $(document).on('click', '#save-review', function(e){
+            e.preventDefault();
+
+            let rating_stars = document.getElementById("user-rated").querySelectorAll("i")
+
+
+            let rating = 0;
+
+            for (let i = 0; i < 5; i ++){
+                if(rating_stars[i].classList.contains("fa-star")){
+                    rating++;
+                }
+            }
+
+
+            let comment = document.getElementById("comment").value
+
+
+            $.ajax({
+                type: 'POST',
+                url : '{% url "update-review" %}',
+                data : {
+                    book_id : book_id,
+                    rating: rating,
+                    comment: comment,
+                    csrfmiddlewaretoken: "{{csrf_token}}",
+                    action: "POST"
+                },
+
+                success: function(json){
+                    window.location.replace("{% url 'book-info' book.slug%}");
+                },
+
+                error: function(xhr, errmsg, err){
+
+                }
+            })
+    })
+
+    </script>
+
+{% endblock %}
