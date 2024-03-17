@@ -1,0 +1,25 @@
+name: CD Bookclub
+on:
+    workflow_run:
+        workflows: ['CI Bookclub']
+        types:
+            -   completed
+jobs:
+    docker:
+        runs-on: self-hosted
+        steps:
+           
+            -   name: Pull Docker
+                run: sudo docker pull fauverick/bookclub:latest
+
+            -   name: Delete Old Docker Container 
+                run: sudo docker rm -f bookclub-app || true
+
+            -   name: Run Docker Image
+                run: sudo docker run --name bookclub-app -p 80:8000 -d --rm fauverick/bookclub:latest
+
+            
+
+    
+            
+            

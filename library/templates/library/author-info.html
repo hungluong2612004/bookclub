@@ -1,0 +1,177 @@
+{% extends 'library/base.html'%}
+
+{% load static %}
+
+{% load my_filters %}
+
+{%block content %}
+    <style>
+        .container{
+            align-items: center;
+            justify-content: center;
+        }
+        .author-container{
+            display: flex;
+            max-width: 1200px;
+        }
+
+        .author-container .author-img{
+            width: 300px;
+            height: 100%;
+        }
+
+        .author-container .author-img img{
+            width: 100%;
+        }
+
+        .author-container .author-img p{
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            margin: 10px;
+        }
+
+        .author-container .author-info{
+            width: calc(100% - 300px);
+            height: 100%;
+            /* border-style: solid;
+            border-width: 0 0 0 1px;
+            border-color: grey; */
+            box-sizing: border-box;
+            padding-left: 40px;
+        }
+
+        a{
+            text-decoration: none;
+            color: #000;
+        }
+
+        .book-container{
+            width: 100%;
+            display: flex;
+            box-sizing: border-box;
+            padding: 0px 10px;
+            /* border-style: solid;
+            border-width: 0 0 1px 0px;
+            border-color: grey; */
+
+        }
+
+        .book-container .book-img{
+            width: 60px;
+        }
+
+        .book-container .book-img img{
+            width: 100%;
+        }
+
+        .book-container .book-info{
+            width: calc(100% - 100px);
+            box-sizing: border-box;
+            padding-left: 20px;
+        }
+
+        .star-row{
+            font-size: 18px;
+            padding-bottom: 20px;
+            box-sizing: border-box;
+            width: 150px;
+            padding-right: 10px;
+        }
+
+    </style>
+    <div class = "container">
+        <div class = "author-container">
+            <div class = "author-img">
+                <img src = {{author.image.url}}>
+                <br>
+                <br>
+                <p>
+                    Books published: {{books|length}}
+                </p>
+                <p>
+                    Average Rating:
+                    {{avg_rating.rating__avg|floatformat:2}}
+                </p>
+                <p>
+                    {% if avg_rating.rating__avg == None %}
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                {%else%}
+                    <span class = "star-row">
+                        {% for i in avg_rating.rating__avg|times%}
+                        <i class="fa fa-star star" aria-hidden="true"></i>
+                        {% endfor %}
+                        {% for i in avg_rating.rating__avg|times_left %}
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        {% endfor %}
+                      
+                    </span>
+                    {% endif %}
+                </p>
+            </div>
+            <div class = "author-info">
+                <h3>
+                    {{author.name}}
+                </h3>
+                <hr>
+                <br>
+                <p style = "max-width: 600px; font-size: 16px; line-height: 2rem;">
+                    {{author_summary}}
+                </p>
+                <br>
+                <h6 style = "font-weight: 500;">
+                    Books written by {{author.name}}
+                </h6>
+                <hr>
+                {% for book in books%}
+
+                <a href = "{{book.get_absolute_url}}">
+                    <div class = "book-container">
+                        <div class = "book-img">
+                            <img src = "{{book.image.url}}">
+                          
+                        </div>
+                        <div class = "book-info">
+                            <p style = "font-weight: 500; font-size: 16px; margin-bottom: 3px;">
+                                {{book.title}}
+                            </p>
+                            <p style = "font-size: 13px; margin: 0; color: grey; padding-bottom: 10px;">
+                                Published in {{book.year}}
+                            </p>
+                            <div class = "book-rating">
+                                {% if avg_rating.rating__avg == None %}
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                {%else%}
+                                <span class = "star-row">
+                                    {% for i in book.rating|times%}
+                                    <i class="fa fa-star star" aria-hidden="true"></i>
+                                    {% endfor %}
+                                    {% for i in book.rating|times_left %}
+                                    <i class="fa fa-star-o star" aria-hidden="true"></i>
+                                    {% endfor %}
+                                  
+                                </span>
+                                {% endif %}
+                                {{book.rating|floatformat:2}} - based on {{book.review_count}} reviews
+                            </div>
+                        </div>
+    
+                    </div>
+                </a>
+
+                <hr>
+               
+                {% endfor %}
+            </div>
+        </div>
+       
+    </div>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% include 'library/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<style>
+    .control-group{
+        width: 400px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .control-group label{
+        font-weight: bold;
+        box-sizing: border-box;
+        padding-bottom: 10px;
+        font-size: 17px;
+    }
+    .control-group input{
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+
+    .form-login-btn{
+        width: 400px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+        font-size: 15px;
+        padding: 10px;
+    }
+</style>
+<div class="container">
+    <h1>
+        Login to your account
+    </h1>
+    <div class = "container bg-white shadow-md p-5 form-layout">
+        <form method="POST" autocomplete="off" >
+            {% csrf_token %}
+            {{form.username|as_crispy_field}}
+
+            {{form.password|as_crispy_field}}
+
+            <button type = "submit" class = "btn btn-primary form-login-btn" style = "margin-top: 30px" >
+                Login
+            </button>
+
+          
+        </form>
+        <a href  = {% url "sign-up" %}>
+            <button type = "submit" class = "btn btn-primary  form-login-btn" style = "background-color: green;" >
+                Sign Up Here
+            </button>
+        </a>
+    </div>
+</div>
+
+{% endblock %}

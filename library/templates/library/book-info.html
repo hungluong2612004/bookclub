@@ -1,0 +1,674 @@
+{% extends 'library/base.html' %}
+
+{% load static %}
+
+{%block content %}
+ <style>
+
+    #overlay {
+        position: fixed;
+        display: none;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.4);
+        z-index: 2;
+        cursor: pointer;
+    }
+
+    body{
+        width: 100%;
+    }
+
+    .container{
+        display: flex;
+        flex-direction: row;
+        box-sizing: border-box;
+    }
+
+    .book-col{
+        box-sizing: border-box;
+        padding: 0 20px;
+    }
+
+    .book-cover{
+        width: 400px;
+    }
+
+    .book-cover img{
+        width: 100%;
+        box-sizing: border-box;
+        padding: 0 10%;
+        padding-bottom: 20px;
+    }
+
+
+    .book-info{
+        width: calc(100% - 400px);
+    }
+
+    .book-info .content{
+        max-width: 800px;
+    }
+
+
+    .btn-book{
+        font-size: 16px;
+        padding: 10px;
+        /* border-radius: 20px; */
+    }
+    
+    .btn span{
+        padding-left: 100px;
+        padding-right: 60px
+    }
+     
+    h2{
+        font-weight: bold;
+        padding-bottom: 10px;
+    }
+
+    h3{
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+
+    h4{
+        font-weight: bold;
+        box-sizing: border-box;
+        margin: 20px 0;
+    }
+
+    p {
+        font-size: 17px;
+    }
+
+   .book-details{
+        box-sizing: border-box;
+        margin: 30px 0;
+        font-size: 17px;
+        line-height: 2.0rem;
+    }
+
+    .star-row{
+        font-size: 25px;
+        padding-bottom: 20px;
+        box-sizing: border-box;
+        width: 150px;
+    }
+
+    .leave-review{
+        display: flex;
+
+    }
+
+    .leave-review .btn{
+        height: 40px;
+        padding: 5px;
+        width: 100px;
+        font-size: 14px;
+        background-color: grey;
+    }
+
+    .single-review{
+        display: flex;
+    }
+
+    .single-review .user{
+        width: 120px
+    }
+
+    .single-review .content{
+        width: calc(100% - 120px)
+    }
+
+    .read-state{
+        border-style: solid;
+        border-color: #fff;
+        border-width: 0 0 0 1px;
+        box-sizing: border-box;
+        padding-left: 20px;
+        font-size: 22px;
+    }
+
+    .read-state:hover{
+        color: rgb(110, 234, 110);
+        transition-duration: 0.2s;
+    }
+
+    .popup{
+        position: fixed;
+        top: 2.4rem;
+        right: 0;
+        bottom: 2.4rem;
+        left: 0;
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+        display: none;
+    }
+
+    .popup_content{
+        background-color: #fff;
+        border-radius: 0.8rem;
+        position: relative;
+        top: 0;
+        min-width: 28rem;
+        max-width: 41rem;
+        display: flex;
+        flex-direction: column;
+        max-height: 100%;
+        padding: 2.4rem 0;
+        box-shadow: 0 0.2rem 0.8rem rgba(30,25,21,.2);
+        opacity: 1;
+        transition: .3s ease-in-out;
+        box-sizing: border-box;
+        padding: 30px 50px;
+        position: relative;
+    }
+
+    .popup_content button{
+        margin-bottom: 20px;
+        box-sizing: border-box;
+    }
+
+    #cancel{
+        position: absolute;
+        display: inline-flex;
+        top: 20px;
+        right: 20px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+
+    button{
+        cursor: pointer;
+    }
+
+    .btn-book button{
+        color: #fff;
+        padding-left: 90px;
+        padding-right: 50px;
+    }
+
+    .btn-outline-primary button{
+        padding-left: 90px;
+        padding-right: 50px;
+    }
+
+    .btn-outline-primary:hover{
+        background-color: #325d88;
+        color: #fff;
+    }
+
+    .btn-outline-primary:hover button{
+        color: #fff;
+    }
+
+    #remove{
+        font-size: 12px;
+        color: grey;
+        text-align: center;
+        text-decoration: underline;
+        padding: 20px;
+        cursor: pointer;
+    }
+
+    #user-rating{
+        cursor: pointer;
+    }
+
+    #avg-rating{
+        display: flex;
+    }
+
+    #avg-rating i{
+        margin-right: 5px;
+    }
+
+    #avg-rating span{
+        font-size: 17px;
+        margin-left: 5px;
+    }
+
+    .category-link {
+        box-sizing: border-box;
+        padding: 0 5px 0 0;
+    }
+    .category-link a{
+        text-decoration: none;
+        color: #325d88;
+
+    }
+ </style>
+
+ <div class = "container">
+    <div id="overlay"></div>
+
+    <div class = "book-col book-cover">
+        <img src = "{{book.image.url}}">
+        {% if shelf == "not added" %}
+
+            <div  class="btn btn-primary btn-book"  style = "width: 100%; padding: 0; margin: 0">
+                    <button class="btn "  id = "default-shelf" value = "{{book.id}}" style = "font-size: 16px; padding: 10px" >
+                        Want To Read
+                    </button>
+                <i class="fa fa-chevron-circle-down read-state" aria-hidden="true" class = "drop-down" id = "read-state-dropdown"></i>
+            </div>
+        {% else %}
+
+            <div  class="btn btn-outline-primary"  style = "width: 100%; padding: 0; margin: 0">
+                <button class="btn "  id = "default-shelf" value = "{{book.id}}">
+                    {{shelf | capfirst}}
+                </button>
+                <i class="fa fa-chevron-circle-down read-state" aria-hidden="true" class = "drop-down" id = "read-state-dropdown"></i>
+            </div>
+
+            <p id = "remove">
+                Remove this book from your shelf
+            </p>
+        
+        {% endif %}
+
+
+    </div>
+    <div class = "book-col book-info">
+        <div class = "content">
+            <div class = "info">
+                <h2>
+                    {{book.title}}
+                </h2>
+
+                <div class = "star-row" id = "avg-rating">
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                    <i class="fa fa-star-o" aria-hidden="true"></i>
+                   
+                    &nbsp;
+                    <span>
+                        ({{numOfReviews}})
+                    </span>
+                </div>
+
+                <a href = "{{book.author.get_absolute_url}}" style = "color: #325d88; text-decoration: none;">
+                    <h5>
+                        <i>               
+                             {{book.author.name}}
+                        </i>
+                    </h5>
+                </a>
+                
+                <p class = "book-details" style = "max-width: 650px">
+                    {{book.description}}
+                </p>
+                <p class = "book-details">
+                    Genre: 
+                    {% for category in book.category.all%}
+                        <span class = "category-link">
+                            <a href = "{% url "list-category" category|slugify %}">
+                                {{category | capfirst}}
+                              
+                            </a>
+                        </span>
+                    {% endfor %}
+                </p>
+                <p class = "book-details"> 
+                    Year: {{book.year}}
+                </p>
+            </div>
+
+            <hr>
+
+            <div class = "rating">
+                <h4>Rating and Reviews</h4>
+              
+                {% if rating == "unrated" %}
+                    <h5>
+                        What do you think of this book?
+                    </h5>
+                {% else %}
+                    <h5> Your Rating</h5>
+                {% endif %}
+
+                <br>
+                {% if rating == "unrated" %}
+                <div class = "leave-review">
+                    <div class = "star-row" id = "user-rating">
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        <i class="fa fa-star-o star" aria-hidden="true"></i>
+                    </div>
+                    &nbsp;
+                    <button class = "btn btn-primary btn-book" id = "submit-rating">
+                        Rate
+                    </button>
+                </div>
+
+                {% else %}
+                    <div class = "leave-review">
+                        <div class = "star-row" id = "user-rated">
+                            <i class="fa fa-star-o star" aria-hidden="true"></i>
+                            <i class="fa fa-star-o star" aria-hidden="true"></i>
+                            <i class="fa fa-star-o star" aria-hidden="true"></i>
+                            <i class="fa fa-star-o star" aria-hidden="true"></i>
+                            <i class="fa fa-star-o star" aria-hidden="true"></i>
+                        </div>
+                        &nbsp;
+                        <a href = "{% url 'add-comment' book.slug %}">
+                            <button class = "btn btn-primary btn-book" id = "edit-rating" value = {{rating}}>
+                                Edit
+                            </button>
+                        </a>
+                    </div>
+                {% endif %}
+
+                <a href = "{% url 'add-comment' book.slug %}">
+
+                    <button class = "btn btn-primary btn-book" style = "width: 200px; margin: 40px 0 30px 0; background-color: black;">
+                        Write a review
+                    </button>
+
+                </a>
+                <hr>
+            </div>
+
+            <div class = "community-rating">
+                <h4>Community Reviews
+                </h4>
+                <div class = "all-reviews">
+                    {% for review in allreviews%}
+                        {% if review.comment != None %}
+                        <div class = "single-review">
+                            <div class = "user">
+                                <br>
+                                <i class="fa fa-user-circle-o" aria-hidden="true" style = "font-size: 40px; padding-bottom: 20px"></i>
+                                <p>{{review.user.username}}</p>
+                                <p style = "font-size: 14px; color: grey"> {{review.time|date:"SHORT_DATE_FORMAT"}}</p>
+                            </div>
+                            <div class = "review-content" style = "width: calc(100% - 300px)">
+                                <hr>
+
+                                {% if review.rating == 0 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </div>
+                                {% elif review.rating == 1 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </div>
+                                {% elif review.rating == 2 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </div>
+                                {% elif review.rating == 3 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </div>
+                                {% elif review.rating == 4 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star-o" aria-hidden="true"></i>
+                                    </div>
+                                {% elif review.rating == 5 %}
+                                    <div class = "star-row">
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                        <i class="fa fa-star" aria-hidden="true"></i>
+                                    </div>
+                                {%endif%}
+
+
+                               
+                                <p>
+                                    {{review.comment}}
+                                </p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                    
+                </div>
+            </div>
+            <br>
+            <br>
+        </div>
+    </div>
+
+    <div class = "popup" id = "popup">
+        <div class = "popup_content">
+            <h3>
+                <b>Where do you want to add this book?</b>
+            </h3>
+            <i class="fa fa-times-circle" aria-hidden="true" id = "cancel"></i>
+           
+            </button>
+            <button type="button" data-index = "want to read" class="btn btn-outline-primary shelf-option" >Want To Read</button>
+            <button type="button" data-index = "reading" class="btn btn-outline-primary shelf-option" >Reading</button>
+            <button type="button" data-index = "read" class="btn btn-outline-primary shelf-option" >Read</button>
+
+        </div>
+    </div>
+        
+ </div>
+
+ <!-- <script src = "{static 'js/app.js' }">  -->
+ <script>
+
+    let data = JSON.parse("{{data|escapejs}}")
+
+    let read_state_dropdown = document.getElementById("read-state-dropdown");
+    let overlay = document.getElementById("overlay")
+    let popup = document.getElementById("popup")
+
+    read_state_dropdown.onclick = () => {
+        overlay.style.display = "block"
+        popup.style.display = "flex"       
+    }
+
+    let cancel = document.getElementById("cancel")
+    cancel.onclick = () => {
+        overlay.style.display = "none"
+        popup.style.display = "none"
+    }
+
+    let shelf_options = document.querySelectorAll(".shelf-option")
+    shelf_options.forEach(item => {
+        item.onclick = () => {
+            overlay.style.display = "none"
+            popup.style.display = "none"
+        }
+    })
+
+    avg_rating = data["avgRating"]
+    console.log("avg data", avg_rating)
+    let avg_rating_stars = document.getElementById("avg-rating").querySelectorAll("i")
+    cnt = avg_rating
+    for (let i = 0; i<avg_rating; i++){
+    
+            avg_rating_stars[i].classList.remove("fa-star-o")
+            if(cnt > 0.5)
+                avg_rating_stars[i].classList.add("fa-star")
+            else 
+                avg_rating_stars[i].classList.add("fa-star-half-o")
+            cnt -= 1;
+
+    }
+
+
+    rating_data = data["rating"]
+    console.log("rating data", rating_data)
+    
+
+    //Book has not been rated by user
+
+    if (rating_data == "unrated"){
+        let rating_stars = document.getElementById("user-rating").querySelectorAll("i")
+
+        console.log("stars", rating_stars)
+
+        rating_stars.forEach((star, index) => {
+            star.onclick = () => {
+                console.log("hi", index + 1)
+                for (let i = 0; i<= index + 1; i++){
+                    rating_stars[i].classList.remove("fa-star-o")
+                    rating_stars[i].classList.add("fa-star")
+                }
+
+                for (let i = index + 1; i < 5; i++){
+                    rating_stars[i].classList.remove("fa-star")
+                    rating_stars[i].classList.add("fa-star-o")
+                }
+            }
+        })
+    }
+
+    //Book has been rated by user
+
+    else{
+        let rated_stars = document.getElementById("user-rated").querySelectorAll("i")
+
+        for (let i = 0; i<rating_data; i++){
+            rated_stars[i].classList.remove("fa-star-o")
+            rated_stars[i].classList.add("fa-star")
+        }
+    }
+   
+
+    $(document).on('click', '#default-shelf', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url : '{% url "update-shelf" %}',
+            data: {
+                book_id : $('#default-shelf').val(),
+                shelf_option : 'want to read',
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: "POST"
+            },
+
+            success: function(json){
+                console.log("added", json.message)
+                location.reload(true)
+
+            },
+
+            error: function(xhr, errmsg, err){
+
+            }
+        })
+    })
+
+    $(document).on('click', '.shelf-option', function(e){
+        e.preventDefault();
+        console.log("adding shelf option", $(this).data('index'))
+        $.ajax({
+            type: 'POST',
+            url : '{% url "update-shelf" %}',
+            data : {
+                book_id : $('#default-shelf').val(),
+                shelf_option: $(this).data('index'),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: "POST"
+            },
+
+            success: function(json){
+                console.log("added", json.message)
+                location.reload(true)
+
+            },
+
+            error: function(xhr, errmsg, err){
+
+            }
+        })
+    })
+
+    $(document).on('click', '#submit-rating', function(e){
+        let rating_stars = document.getElementById("user-rating").querySelectorAll("i")
+
+        e.preventDefault();
+
+        rating = 0;
+
+        for (let i = 0; i < 5; i ++){
+            if(rating_stars[i].classList.contains("fa-star")){
+                rating++;
+            }
+        }
+
+        console.log("rating is ", rating)
+
+        $.ajax({
+            type: 'POST',
+            url : '{% url "add-rating" %}',
+            data : {
+                book_id : $('#default-shelf').val(),
+                rating: rating,
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: "POST"
+            },
+
+            success: function(json){
+                location.reload(true)
+            },
+
+            error: function(xhr, errmsg, err){
+
+            }
+        })
+    })
+
+    $(document).on('click', '#remove', function(e){
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url : '{% url "remove" %}',
+            data : {
+                book_id : $('#default-shelf').val(),
+                csrfmiddlewaretoken: "{{csrf_token}}",
+                action: "POST"
+            },
+
+            success: function(json){
+                location.reload(true)
+            },
+
+            error: function(xhr, errmsg, err){
+
+            }
+        })
+    })
+
+
+</script>
+   
+
+{% endblock %}

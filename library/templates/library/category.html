@@ -1,0 +1,59 @@
+{% extends 'library/base.html'%}
+
+{% load static %}
+
+{%block content %}
+    <style>
+
+        h3{
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .book-row{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .card{
+            width: 270px;
+        }
+        .card-body img{
+            width: 100%;
+        }
+       .card-title{
+            font-size: 18px;
+            font-weight: bold;
+            padding-top: 10px;
+       }
+       .card-text{
+        font-size: 16px;
+       }
+    </style>
+
+    <div class = "container">
+        <h3>
+            {{single_category.name | capfirst}}
+        </h3>
+
+        <div class = "book-row">
+            {% for book in books%}
+            <a href  = {{book.get_absolute_url}}>
+
+            <div class="card border-dark mb-3" style="max-width: 20rem;">
+                <div class="card-header">{{single_category.name | capfirst}}</div>
+                <div class="card-body">
+                  <img src = "{{book.image.url}}">
+                  <h4 class="card-title">{{book.title}}</h4>
+                  <p class="card-text">{{book.author}}</p>
+                </div>
+              </div>
+              </a>
+            {% endfor %}
+        </div>
+       
+    </div>
+   
+{% endblock %}

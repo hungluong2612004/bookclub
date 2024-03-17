@@ -1,0 +1,251 @@
+{% extends 'library/base.html'%}
+
+{% load static %}
+
+{%block content %}
+    <style>
+
+        h3{
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        .book-row{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .card{
+            width: 270px;
+        }
+        .card-body img{
+            width: 100%;
+        }
+       .card-title{
+            font-size: 18px;
+            font-weight: bold;
+            padding-top: 10px;
+       }
+       .card-text{
+        font-size: 16px;
+       }
+
+       .book-row a{
+        text-decoration: none;
+        color: #000;
+       }
+
+       .slider-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .slider-container i{
+            cursor: pointer;
+        }
+
+        .slider {
+            width: 100%;
+            text-align: center;
+            overflow: hidden;
+            box-sizing: border-box;
+            padding: 0 20px;
+        }
+
+        .slides {
+            display: flex;
+            
+            overflow-x: scroll;
+            scroll-snap-type: x mandatory;
+            
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            
+        }
+        .slides::-webkit-scrollbar {
+            width: 0.5px;
+            height: 10px;
+        }
+        .slides::-webkit-scrollbar-thumb {
+            border-radius: 10px;
+        }
+        .slides::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        
+        .slides > div {
+            scroll-snap-align: start;
+            flex-shrink: 0;
+            width: 270px;
+            box-sizing: border-box;
+            margin-right: 50px;
+
+            position: relative;
+            
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-sizing: border-box;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .discover_book a{
+            text-decoration: none;
+        }
+          
+
+        .discover_book .book-container{
+            position: relative;
+            box-sizing: border-box;
+            margin-top: 20px;
+        }
+
+        .discover_book .book-container .ranking{
+            position: absolute;
+            right: -20px;
+            top: -18px;
+            height: 50px;
+            width: 50px;
+            background-color: #325d88;
+            border-radius: 50%;
+        }
+
+        .discover_book .book-container .ranking p{
+            text-align: center;
+            color: #fff;
+            font-weight: bold;
+            font-size: 20px;
+            width: 100%;
+            height: 100%;
+            padding-top: 7px;
+        }
+
+        .book-container p{
+            font-size: 15px;
+        }
+
+        .book-container  img{
+            width: 100%;
+        }
+
+        .card-title{
+            font-size: 18px;
+            font-weight: bold;
+            padding-top: 10px;
+       }
+
+       .card-text{
+        font-size: 16px;
+       }
+
+
+    </style>
+
+    <div class = "container">
+        <h3>
+            Trending books recently
+        </h3>
+
+
+        <div class = "slider-container">      
+            <i class="fa fa-caret-left left" aria-hidden="true" style = "font-size: 25px;"></i>
+  
+                <div class="slider" >
+        
+                    <div class="slides" >
+
+                        {% for book in trending_books%}
+                            <div class = "discover_book">
+                                <a href = "{{book.get_absolute_url}}">
+                                    <div class = "card border-dark mb-3 book-container">
+                                        <div class = "ranking">
+                                            <p>
+                                                #<span  class = "ranking_number">1</span> 
+                                            </p>
+                                        </div>
+                                        <div class="card-header">
+                                
+                                            {{book.category_name| capfirst}}
+
+                                        </div>
+                                        <div class="card-body">
+                                            <img src = "{{book.image.url}}">
+                                            <h4 class="card-title">{{book.title}}</h4>
+                                            <p class="card-text">{{book.author}}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                            </div>
+                            
+                        {% endfor %}
+                    </div>
+                </div>
+            
+            <i class="fa fa-caret-right right" aria-hidden="true" style = "font-size: 25px;"  ></i>
+
+        </div>
+
+        <h3>
+            All books
+        </h3>
+
+        <div class = "book-row">
+            {% for book in books%}
+                <a href  = {{book.get_absolute_url}}>
+                    <div class="card border-dark mb-3" style="max-width: 20rem; margin-bottom: 20px;">
+                        <div class="card-header">
+                           
+                                {{book.category_name| capfirst}}
+                        </div>
+                        <div class="card-body">
+                            <img src = "{{book.image.url}}">
+                            <h4 class="card-title">{{book.title}}</h4>
+                            <p class="card-text">{{book.author}}</p>
+                        </div>
+                    </div>
+                    <br>
+                </a>
+            {% endfor %}
+        </div>
+       
+        <br>
+        <br>
+
+    </div>
+
+    <script>
+         left_btns = document.querySelectorAll(".left")
+
+
+        left_btns.forEach(left => {
+            left.addEventListener("click", function(event) {
+                const slides = left.parentNode.querySelector(".slides")
+                slides.scrollLeft -= 300;
+                event.preventDefault();
+            });
+        })
+
+
+        right_btns = document.querySelectorAll(".right")
+
+        right_btns.forEach(right => {
+            right.addEventListener("click", function(event) {
+                slides = right.parentNode.querySelector(".slides")
+                slides.scrollLeft += 300;
+                event.preventDefault();
+            });
+        })
+
+        ranking_numbers = document.querySelectorAll(".ranking_number")
+        ranking_numbers.forEach((ranking, index) => {
+            ranking.innerHTML = index + 1
+        })
+    </script>
+   
+{% endblock %}

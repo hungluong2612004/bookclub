@@ -1,0 +1,280 @@
+{% include 'library/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% load my_filters %}
+
+
+{% block content %}
+    <style>
+        .profile-container{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 40px 0 0 0 ;
+        }
+
+        .profile-container .info{
+            width: 50%;
+            box-sizing: border-box;
+            padding: 0 40px;
+            border-style: solid;
+            border-color: grey;
+            border-width: 0 1px 0 0;    
+        }
+
+        .info-display{
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            box-sizing: border-box;
+            margin-bottom: 40px;
+        }
+
+        .info-display .avatar{
+            width: 40%;
+            box-sizing: border-box;
+            padding: 0 40px 0 0;
+        }
+
+        .info-display .avatar img{
+            width: 100%;
+            border-color: #fff;
+            border-radius: 50%;
+        }
+
+        .info-display .perso-info{
+            width: 60%;
+        }
+
+        .profile-container .activity{
+            width: 50%;
+            box-sizing: border-box;
+            padding: 0 40px;
+        }
+
+        .info-title{
+            width: 120px;
+            font-weight: bold;
+
+        }
+
+        .perso-info-field{
+            box-sizing: border-box;
+            padding-bottom: 20px;
+        }
+
+        .activity-container{
+            box-sizing: border-box;
+            padding: 15px 0;
+        }
+        .single-activity{
+            box-sizing: border-box;
+            padding: 20px 0;
+            border-color: grey;
+            border-style: solid;
+            border-width: 1px 0 0 0;
+        }
+
+        .book-info{
+            display: flex;
+            width: 100%;
+            box-sizing: border-box;
+            padding-bottom: 15px;
+        }
+
+        .book-info .book-cover{
+            width: 80px;
+        }
+
+        .book-info .book-cover img{
+            width: 100%;
+        }
+
+        .book-info .book-details{
+            width: calc(100% - 80px);
+            box-sizing: border-box;
+            padding: 0 0 0 20px;
+        }
+
+        .activity-date{
+            color: grey;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .star-row{
+            font-size: 20px;
+            padding-left: 10px;
+            box-sizing: border-box;
+            width: 150px;
+            display: inline;
+        }   
+
+        a{
+            text-decoration: none;
+            color: #000;
+        }
+
+        .interest-block{
+            box-sizing: border-box;
+            margin: 0 10px 0 0;
+            background-color: rgb(217, 217, 217);
+            padding: 10px;
+            color: #000;
+            text-transform: capitalize;
+            font-size: 15px;
+            border-color: grey;
+            font-weight: 400;
+        }
+
+    </style>
+    <div class="container">
+        <h1>
+            My Profile
+        </h1>
+        <div class = "profile-container">
+            <div class = "info">
+                <div class = "info-display">
+                    <div class = "avatar">
+                        <img src = "{{profile.profile_pic.url}}">                   
+                    </div>
+                    <div class = "perso-info">
+                        <h4 style = "padding-bottom: 10px;">
+                            <b>
+                                {{user.username|capfirst}}
+                            </b>
+                        </h4>
+                        <hr>
+                        <div class = "perso-info-field" style = "padding-top: 12px;">
+                            <span class = "info-title">
+                                Full Name: 
+                            </span>
+                            <span class = "info-content">
+                                {{user.first_name}} {{user.last_name}}
+                            </span>
+                        </div>
+
+                        <div class = "perso-info-field">
+                            <span class = "info-title">
+                                Location: 
+                            </span>
+                            <span class = "info-content">
+                                {{profile.city}}, {{profile.country}}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <p>
+                    <b>
+                       About me: 
+                    </b>
+                </p>
+                <p>
+                    {{profile.about_me}}
+                </p>
+                <br>
+                <p>
+                    <b>
+                        My Interests: 
+                    </b>
+                </p>
+                
+                <div>
+                    {% for category in profile.liked_categories.all %}
+                        <a href = "{{category.get_absolute_url}}">
+                            <button type="button" class="btn btn-info interest-block">{{category.name}}</button>
+
+                        </a>
+                    {% endfor %}
+                </div>
+
+                <br>
+                <br>
+                <br>
+                <a href = "{% url "dashboard" %}">
+                    <button type="button" class="btn btn-primary" style = "font-size: 16px; padding: 10px">Edit Profile</button>
+                </a>
+               
+            </div>
+            <div class = "activity">
+                <h3>
+                    My Activities
+                </h3>
+                <div class = "activity-container">
+                    {% for review in reviews %}
+                    <div class = "single-activity">
+                        <p>
+                            <span>
+                                <b>
+                                    {{user.username}}
+                                </b> 
+                            </span>
+
+                                rated a book
+                                {{review.rating_star_checked}}
+
+                               
+                                <span class = "star-row">
+                                    {% for i in review.rating|times%}
+                                    <i class="fa fa-star star" aria-hidden="true"></i>
+
+                                    {% endfor %}
+
+                                    {% for i in review.rating_unchecked|times%}
+                                    <i class="fa fa-star-o star" aria-hidden="true"></i>
+
+                                    {% endfor %}
+                                    
+                                </span>
+                        </p>
+                        <p style = "margin-bottom: 20px">
+                            <i>
+                               {{review.comment}}
+                            </i>
+                        </p>
+                        <a href = "{{review.book.get_absolute_url}}">
+
+                       
+                            <div class = "book-info">
+                                <div class = "book-cover">
+                                    <img src = "{{review.book.image.url}}">
+                                </div>
+                                <div class = "book-details">
+                                    <p style = "margin-bottom: 10px;">
+                                        <b>
+                                            {{review.book.title}}
+                                        </b>
+                                    </p>
+                                    <p>
+                                        by
+                                        <span>
+                                            <b>
+                                                {{review.book.author}}
+                                            </b>
+                                        </span>
+                                    </p>
+                                </div>
+                            </div>
+                        
+                        </a>
+                        
+                        <p class = "activity-date">
+                            {{ review.time|date:"D d M Y" }} at {{ review.time|time:"H:i" }}
+                        </p>
+                    </div>
+
+                    {% endfor %}
+                   
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <br>
+{% endblock %}

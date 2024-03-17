@@ -1,0 +1,53 @@
+{% include 'library/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <style>
+        .control-group{
+        width: 500px;
+        box-sizing: border-box;
+        margin-bottom: 20px;
+    }
+
+    .control-group label{
+        font-weight: bold;
+        box-sizing: border-box;
+        padding-bottom: 10px;
+        font-size: 17px;
+    }
+    .control-group input{
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px;
+    }
+    </style>
+    <div class="container">
+        <h1>
+            Sign up here
+        </h1>
+        <div class = "container bg-white shadow-md p-5 form-layout">
+            <form method="POST" autocomplete="off" >
+                {% csrf_token %}
+
+                {{form.username|as_crispy_field}}
+
+                {{form.email|as_crispy_field}}
+
+                {{form.password1|as_crispy_field}}
+
+                {{form.password2|as_crispy_field}}
+
+                <button type = "submit" class = "btn btn-primary" style = "font-size: 15px; padding: 10px; margin-top: 30px">
+                    Create an account
+                </button>
+            </form>
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+   
+{% endblock %}

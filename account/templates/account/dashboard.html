@@ -1,0 +1,257 @@
+{% include 'library/base.html' %}
+
+{% load static %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+    <style>
+        .message-container{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 20px;
+            background-color: green;
+            color: #fff;
+            margin-top: -40px;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .message-container span{
+            box-sizing: border-box;
+            padding-right: 10px;
+        }
+
+
+        .dashboard-nav{
+            display: flex;
+            box-sizing: border-box;
+            margin-top: 30px;
+            border-style: solid;
+            border-color: #000;
+            border-width: 0 0 1px 0;
+        }
+        .dashboard-nav-link{
+            box-sizing: border-box;
+            padding: 0 0px 10px 0;
+            margin: 0 40px 0  0;
+            border-style: none;
+            border-color: #325d88;
+            border-width: 0 0 3px 0;
+            cursor: pointer;
+        }
+
+        .dashboard-content{
+            box-sizing: border-box;
+            margin: 40px 0 0 0 ;
+        }
+
+        .dashboard-content-section{
+            display: none;
+        }
+
+        .control-group{
+            width: 500px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+        }
+
+        .control-group label{
+            font-weight: bold;
+            box-sizing: border-box;
+            padding-bottom: 10px;
+        }
+
+        .control-group input{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        .btn-save{
+            font-size: 17px;
+            padding: 10px 30px;
+        }
+
+        #id_liked_categories{
+            display: flex;
+            flex-direction: row;
+        }
+
+        #id_liked_categories label{
+            text-transform: capitalize;
+            box-sizing: border-box;
+            padding: 15px 20px 15px 25px;
+            margin: 0 20px 0 0;
+            border-style: solid;
+            border-color: #325d88;
+            background-color: #C8E4FF;
+            border-radius: 5px;
+            border-width: 1px;
+            position: relative;
+        }
+
+        #id_liked_categories label input{
+            position: absolute;
+            top: 7px;
+            left: 7px;
+        }
+
+        #div_id_country .controls select{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        #div_id_about_me textarea{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px;
+        }
+
+        #fav-genres{
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+
+        
+    </style>
+
+    {% for message in messages %}
+        {% if message.level ==  DEFAULT_MESSAGE_LEVELS.SUCCESS%}
+        <h6 class = "message-container" id = "message-timer">
+            <span>
+                {{message}}
+            </span>
+            <i class="fa fa-check" aria-hidden="true"></i>
+        </h6>
+        {% endif %}
+    {% endfor %}
+
+    <div class = "container">
+        <h1>Dashboard</h1>
+        <div class = "dashboard-nav">
+            <span class = "dashboard-nav-link" id = "account-nav" >
+                Account Management
+            </span>
+            <span  class = "dashboard-nav-link" id = "perso-nav" >
+                Personal Info
+            </span>
+            <span  class = "dashboard-nav-link" id = "profile-nav" >
+                Profile Pic
+            </span>
+        </div>
+        <div class = "dashboard-content">
+            <div class = "dashboard-content-container">
+                <div class = "dashboard-content-section" id = "account-content">
+                    <form method="POST" autocomplete="off" >
+                        {% csrf_token %}
+                        {{account_form.username|as_crispy_field}}
+            
+                        {{account_form.email|as_crispy_field}}
+
+                        {{account_form.first_name|as_crispy_field}}
+
+                        {{account_form.last_name|as_crispy_field}}
+            
+                        <button type = "submit" class = "btn btn-primary btn-save" style = "margin-top: 40px" name = "account">
+                            Save
+                        </button>
+                    </form>
+                 
+                </div>
+                <div class = "dashboard-content-section" id = "perso-content">
+                
+                    <form method="POST" autocomplete="off" >
+                        {% csrf_token %}
+
+                        {{profile_form.city|as_crispy_field}}
+
+                        {{profile_form.country|as_crispy_field}}
+
+                        {{profile_form.about_me|as_crispy_field}}
+
+                        <label id = "fav-genres"  class="control-label ">
+                            Favorite Genres
+                        </label>
+
+                        {{profile_form.liked_categories}}
+                           
+                        <button type = "submit" class = "btn btn-primary btn-save" style = "margin-top: 40px" name = "personal">
+                            Save
+                        </button>
+                    </form>
+                </div>
+                <div class = "dashboard-content-section" id = "profile-content">
+                    <p>Change your profile picture</p>
+                    <form method="POST" autocomplete="off" enctype="multipart/form-data">
+                        
+                        <!-- The enctyp part is important for file uploading!!! -->
+                        
+                        {% csrf_token %}
+                        {{profile_pic_form.profile_pic| as_crispy_field}}
+
+                        <button type = "submit" class = "btn btn-primary btn-save" style = "margin-top: 40px" name = "profile">
+                            Upload
+                        </button>
+                    </form>
+
+                    
+                </div>
+            </div>
+            
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+
+    <script>
+
+        let message_timer = document.getElementById("message-timer")
+        setTimeout(() => {
+            message_timer.style.display = "none"
+        }, 2500)
+
+        let account_nav = document.getElementById("account-nav")
+        let perso_nav = document.getElementById("perso-nav")
+        let account_content = document.getElementById("account-content")
+        let perso_content = document.getElementById("perso-content")
+        let profile_nav = document.getElementById("profile-nav")
+        let profile_content = document.getElementById("profile-content")
+
+
+        account_nav.style.borderStyle = "solid"
+        account_content.style.display = "block"
+
+
+        account_nav.onclick = () => {
+            account_nav.style.borderStyle = "solid"
+            perso_nav.style.borderStyle = "none"
+            profile_nav.style.borderStyle = "none"
+            account_content.style.display = "block"
+            perso_content.style.display = "none"
+            profile_content.style.display = "none"
+        }
+
+        perso_nav.onclick = () => {
+            account_nav.style.borderStyle = "none"
+            perso_nav.style.borderStyle = "solid"
+            profile_nav.style.borderStyle = "none"
+            account_content.style.display = "none"
+            perso_content.style.display = "block"
+            profile_content.style.display = "none"
+        }
+
+        profile_nav.onclick = () => {
+            profile_nav.style.borderStyle = "solid"
+            perso_nav.style.borderStyle = "none"
+            account_nav.style.borderStyle = "none"
+            profile_content.style.display = "block"
+            account_content.style.display = "none"
+            perso_content.style.borderStyle = "none"
+        }
+
+    </script>
+{% endblock content %}

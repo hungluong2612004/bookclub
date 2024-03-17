@@ -1,0 +1,176 @@
+{% extends 'library/base.html'%}
+
+{% load static %}
+
+{% block content %}
+
+    <style>
+
+    .loader_container{
+        width: 100%;
+        height: 40vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .loader {
+      border: 16px solid #f3f3f3;
+      border-radius: 50%;
+      border-top: 16px solid blue;
+      border-right: 16px solid green;
+      border-bottom: 16px solid red;
+      border-left: 16px solid pink;
+      width: 120px;
+      height: 120px;
+      -webkit-animation: spin 2s linear infinite;
+      animation: spin 2s linear infinite;
+    }
+    
+    @-webkit-keyframes spin {
+      0% { -webkit-transform: rotate(0deg); }
+      100% { -webkit-transform: rotate(360deg); }
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    #book-row{
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            box-sizing: border-box;
+            margin-bottom: 50px;
+    }
+
+    .card{
+        width: 270px;
+    }
+    .card-body img{
+        width: 100%;
+    }
+    .card-title{
+        font-size: 18px;
+        font-weight: bold;
+        padding-top: 10px;
+    }
+    .card-text{
+    font-size: 16px;
+    }
+    </style>
+    
+    <div class = "container">
+
+    <h2 style = "text-align: center;">Let's venture outside our library!</h2>
+    <br>
+    <div class = "loader_container">
+        <div class="loader">
+        </div>    
+    </div>
+    <h3 style = "text-align: center"> Here are some amazing books for you ... </h3>
+    <br>
+    <br>
+  
+    <div id  = "book_list">
+        <p id = "content">
+
+        </p>
+    </div>
+
+    <div id = "book-row">
+       
+    </div>
+
+    </div>
+
+    <script>
+
+
+        let data = JSON.parse("{{data|escapejs}}")
+        const ai_url = "https://5au3xnmm4mdtf75zcceujd5oem0sgtxi.lambda-url.us-east-2.on.aws/?prompt=";
+
+
+
+        async function fetchBookImage(fetch_url, book_data){
+            const response = await fetch(fetch_url)
+            const book = await response.json();
+            cover_id = book.docs[0].cover_i
+            img_url = `https://covers.openlibrary.org/b/id/${cover_id}-M.jpg`
+            document.getElementById("book-row").innerHTML += `
+            <a href = "https://openlibrary.org${book.docs[0].key}" target=”_blank”>
+                <div class="card border-dark mb-3" style="max-width: 20rem; margin-bottom: 20px;">
+                    <div class="card-header">
+                            ${book_data.genre.charAt(0).toUpperCase() + book_data.genre.slice(1)}
+                    </div>
+                    <div class="card-body">
+                        <img src = "${img_url}">
+                        <h4 class="card-title">${book_data.title}</h4>
+                        <p class="card-text">${book_data.author}</p>
+                    </div>
+                </div>
+                <br>
+            </a>
+            `
+        }
+
+        render_book = (books) => {
+            
+            books.forEach(book => {
+                // let html_content = `<p> ${book.title} - ${book.author} - ${book.genre} </p>`
+                // document.getElementById("content").innerHTML += html_content
+                let param = 'title=' + book.title.toLowerCase().split(' ').join('-') + '&author=' + book.author.toLowerCase().split(' ').join('-')
+                let url = 'https://openlibrary.org/search.json?' + param
+                fetchBookImage(url, book)
+
+            });
+
+            $(".loader_container").css("display", "none")
+
+        }
+
+
+        let fetchURL = "https://5au3xnmm4mdtf75zcceujd5oem0sgtxi.lambda-url.us-east-2.on.aws/?prompt=" + data["prompt"]
+
+        console.log(fetchURL)
+
+
+        function convert_to_data(text){
+            let book_array = text.split('\n').slice(1)
+            let book_data = []
+            for (let i = 0; i<book_array.length; i++){
+                let text = book_array[i].trim().slice(2)
+                genre = text.split(' - ')[1].split('/')[0]
+                other_info = text.split(' - ')[0].split(' by ')
+                author = other_info[1]
+                title = other_info[0].split('"')[1]
+                
+
+                book_data.push({
+                    "title": title,
+                    "author": author,
+                    "genre": genre
+                })
+            }
+            console.log(book_data)
+            render_book(book_data)
+        }   
+
+
+        async function fetchAWSData(){
+            console.log("fetching aws")
+            const response = await fetch(fetchURL)
+            const books = await response.text();
+            console.log("response is", books)
+            convert_to_data(books)
+        }
+
+        fetchAWSData()
+        
+       $("#discover-nav").css("color", "#d32521")
+
+    </script>
+
+{% endblock %}
